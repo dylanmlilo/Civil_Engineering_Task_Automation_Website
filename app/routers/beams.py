@@ -1,23 +1,11 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException
 from ..schemas.beam import BeamLoadInput, BeamLoadResult
 from ..calculators.beam_loads_calculator import calculate_loads_on_beam
-from fastapi.templating import Jinja2Templates
-
-
 
 router = APIRouter(
-    prefix="/beams",
+    prefix="/api/beams",
     tags=["Beam Calculations"]
 )
-
-templates = Jinja2Templates(directory="app/templates")
-
-
-@router.get("/")
-async def beam_calculator(request: Request):
-    return templates.TemplateResponse("beams.html", {"request": request})
-
-
 
 @router.post("/calculate-loads", response_model=BeamLoadResult)
 async def calculate_beam_loads(input: BeamLoadInput):

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Beam Calculator</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>Beam Load Calculator</h1>
+    <form id="beam-form">
+        <label>Span (m): <input type="number" name="span" step="0.1" required></label>
+        <label>Width (mm): <input type="number" name="width" required></label>
+        <label>Depth (mm): <input type="number" name="depth" required></label>
+        <label>Depth (mm): <input type="number" name="depth" required></label>
+        <label>Depth (mm): <input type="number" name="depth" required></label>
+        <label>Depth (mm): <input type="number" name="depth" required></label>
+        <button type="submit">Calculate</button>
+    </form>
+    <div id="results"></div>
+    <script src="/static/js/beams.js"></script>
+</body>
+</html>
