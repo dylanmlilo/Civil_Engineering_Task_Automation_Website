@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="calculator">
+    <h1>Sewer Pipe Size Calculator</h1>
+    <form id="sewer_pipe_size_calculator-form">
+        <h2>Design Parameters</h2>
+        <div class="form-group">
+            <label>Population:</label>
+            <input type="number" id="sewer-population" step="1" min="10" value="1000" required>
+        </div>
+        <div class="form-group">
+            <label>Per Capita Flow (L/person/day):</label>
+            <input type="number" id="sewer-per-capita-flow" step="1" min="10" value="50" required>
+        </div>
+        <div class="form-group">
+            <label>Slope (m/m):</label>
+            <input type="number" id="sewer-slope" step="0.0001" min="0" value="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="sewer-pipe-type">Pipe Type:</label>
+            <select id="sewer-pipe-type">
+                <option value="0.009" selected>PVC</option>
+                <option value="0.011">Asbestos Cement</option>
+                <option value="0.013">Concrete</option>
+                <option value="0.015">Galvanised Iron</option>
+                <option value="0.010">HDPE</option>
+                <option value="0.013">JRP (Jointed Reinforced Concrete Pipe)</option>
+            </select>
+        </div>       
+        <div class="form-group">
+            <label>Diameter (m):</label>
+            <input type="number" id="sewer-diameter" step="0.01" min="0" value="0.3" required>
+        </div>
+        <div class="form-group">
+            <label>Flow Depth Ratio (d/D):</label>
+            <input type="number" id="sewer-flow-ratio" step="0.01" min="0.3" max="1" value="0.8" required>
+        </div>
+
+        <button type="submit" id="sewer-calculate-btn" class="calculate-btn">Calculate</button>
+
+        <div id="sewer-results" class="results" style="display: none;">
+            <h2>Results</h2>
+            <div class="result-grid" id="sewer-result-items"></div>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/sewer.js') }}"></script>
+{% endblock %}

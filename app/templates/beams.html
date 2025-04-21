@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="calculator">
+    <h1>Beam Load Calculator</h1>
+    <form id="beam-form">
+        <div class="form-grid">
+            <div class="form-section">
+                <h2>Beam Properties</h2>
+                <div class="form-group">
+                    <label>Span (m):</label>
+                    <input type="number" id="span" step="0.01" min="0" value="5" required>
+                </div>
+                <div class="form-group">
+                    <label>Width (mm):</label>
+                    <input type="number" id="width" min="100" value="300" required>
+                </div>
+                <div class="form-group">
+                    <label>Depth (mm):</label>
+                    <input type="number" id="depth" min="100" value="500" required>
+                </div>
+                <div class="form-group">
+                    <label>Include Self Weight:</label>
+                    <select id="include_self_weight">
+                        <option value="true" selected>Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Wall Loads</h2>
+                <div class="form-group">
+                    <label>Roof Level (m):</label>
+                    <input type="number" id="roof_level" step="0.01" min="0" value="3">
+                </div>
+                <div class="form-group">
+                    <label>Window Level (m):</label>
+                    <input type="number" id="window_level" step="0.01" min="0" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Additional Dead Load (kN/m):</label>
+                    <input type="number" id="additional_dead_load" step="0.01" min="0" value="2.5">
+                </div>
+                <div class="form-group">
+                    <label>Live Load (kN/m):</label>
+                    <input type="number" id="live_load" step="0.01" min="0" value="3">
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="calculate-btn">Calculate</button>
+    </form>
+
+    <div id="results" class="results" style="display: none;">
+        <h2>Results</h2>
+        <div class="result-grid" id="result-items"></div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/beams.js') }}"></script>
+{% endblock %}

@@ -1,88 +1,129 @@
-let pointLoads = [];
-
-function addPointLoad() {
-    const container = document.getElementById('point-loads');
-    const div = document.createElement('div');
-    div.className = 'point-load';
-    div.innerHTML = `
-        <label>Magnitude (kN): <input type="number" class="point-magnitude" step="0.1" min="0" value="10"></label>
-        <label>Position (m): <input type="number" class="point-position" step="0.1" min="0" value="2.5"></label>
-        <button type="button" onclick="this.parentNode.remove()">Remove</button>
-    `;
-    container.appendChild(div);
-}
-
-function getFormData() {
-    // Get point loads
-    pointLoads = [];
-    document.querySelectorAll('.point-load').forEach(load => {
-        pointLoads.push({
-            magnitude: parseFloat(load.querySelector('.point-magnitude').value),
-            position: parseFloat(load.querySelector('.point-position').value)
-        });
-    });
-
-    return {
-        span: parseFloat(document.getElementById('span').value),
-        width: parseInt(document.getElementById('width').value),
-        depth: parseInt(document.getElementById('depth').value),
-        include_self_weight: document.getElementById('include_self_weight').value === 'true',
-        roof_level: parseFloat(document.getElementById('roof_level').value),
-        window_level: parseFloat(document.getElementById('window_level').value),
-        additional_dead_load: parseFloat(document.getElementById('additional_dead_load').value),
-        live_load: parseFloat(document.getElementById('live_load').value),
-        point_loads: pointLoads.map(load => ({
-            magnitude: load.magnitude,
-            position: load.position
-        }))
-    };
-}
-
-function displayResults(data) {
-    const resultsDiv = document.getElementById('results');
-    const resultItems = document.getElementById('result-items');
-    
-    resultItems.innerHTML = `
-        <div class="result-item"><strong>Self Weight:</strong> ${data.self_weight.toFixed(3)} kN/m</div>
-        <div class="result-item"><strong>Wall Dead Load:</strong> ${data.wall_dead_load.toFixed(3)} kN/m</div>
-        <div class="result-item"><strong>Total Dead Load:</strong> ${data.total_dead_load.toFixed(3)} kN/m</div>
-        <div class="result-item"><strong>Factored Dead Load:</strong> ${data.factored_dead_load.toFixed(3)} kN/m</div>
-        <div class="result-item"><strong>Factored Live Load:</strong> ${data.factored_live_load.toFixed(3)} kN/m</div>
-        <div class="result-item"><strong>Service Load:</strong> ${data.service_load.toFixed(3)} kN/m</div>
-        <div class="result-item"><strong>Factored Load:</strong> ${data.factored_load.toFixed(3)} kN/m</div>
-        <div class="result-item"><strong>Dead Load Reactions:</strong> ${data.dead_load_reactions.toFixed(3)} kN</div>
-        <div class="result-item"><strong>Live Load Reactions:</strong> ${data.live_load_reactions.toFixed(3)} kN</div>
-        <div class="result-item"><strong>Service Load Reactions:</strong> ${data.service_load_reactions.toFixed(3)} kN</div>
-        <div class="result-item"><strong>Factored Load Reactions:</strong> ${data.factored_load_reactions.toFixed(3)} kN</div>
-        <div class="result-item"><strong>Max Moment (Service):</strong> ${data.max_moment_service.toFixed(3)} kNm</div>
-        <div class="result-item"><strong>Max Moment (Factored):</strong> ${data.max_moment_factored.toFixed(3)} kNm</div>
-        <div class="result-item"><strong>Total Point Load:</strong> ${data.total_point_load ? data.total_point_load.toFixed(3) : '0'} kN</div>
-    `;
-    
-    resultsDiv.style.display = 'block';
-}
-
-async function calculate() {
-    const formData = getFormData();
-    
-    try {
-        const response = await fetch('/api/beams/calculate-loads', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-        });
-
-        if (!response.ok) {
-            throw new Error(await response.text());
+(function() {
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        const beamForm = document.getElementById("beam-form");
+        if (!beamForm) {
+            return;
         }
 
-        const data = await response.json();
-        displayResults(data);
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Calculation failed: ' + error.message);
-    }
-}
+        // Check for required browser features
+        if (!window.fetch || !window.Promise) {
+            alert("This browser doesn't support required features. Please use a modern browser.");
+            return;
+        }
 
-// Add one point load by default when page loads
-window.onload = addPointLoad;
+        beamForm.addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            // Show loading state
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Calculating...";
+
+            try {
+                // Validate form inputs before processing
+                const span = parseFloat(document.getElementById("span").value);
+                const width = parseFloat(document.getElementById("width").value);
+                const depth = parseFloat(document.getElementById("depth").value);
+                const roofLevel = parseFloat(document.getElementById("roof_level").value);
+                const windowLevel = parseFloat(document.getElementById("window_level").value);
+                const additionalDeadLoad = parseFloat(document.getElementById("additional_dead_load").value);
+                const liveLoad = parseFloat(document.getElementById("live_load").value);
+
+                if (isNaN(span) || isNaN(width) || isNaN(depth) || 
+                    isNaN(roofLevel) || isNaN(windowLevel) || 
+                    isNaN(additionalDeadLoad) || isNaN(liveLoad)) {
+                    throw new Error("Please enter valid numbers in all fields");
+                }
+
+                const formData = {
+                    span: span,
+                    width: width,
+                    depth: depth,
+                    include_self_weight: document.getElementById("include_self_weight").value === "true",
+                    roof_level: roofLevel,
+                    window_level: windowLevel,
+                    additional_dead_load: additionalDeadLoad,
+                    live_load: liveLoad,
+                    point_loads: [] // Future feature
+                };
+
+                
+                const response = await fetch("/api/beams/calculate-loads", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || "Calculation failed");
+                }
+                
+                const results = await response.json();
+                console.log("Received beam calculation results:", results);
+                
+                // Validate response structure
+                if (!results || typeof results !== "object") {
+                    throw new Error("Invalid response format from server");
+                }
+
+                // Display results
+                displayResults(results);
+
+            } catch (error) {
+                console.error("Beam calculation error:", error);
+                alert("Error: " + error.message);
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            }
+        });
+
+        function displayResults(data) {
+            console.log("Displaying beam results:", data);
+            
+            const resultsDiv = document.getElementById("results");
+            const resultItems = document.getElementById("result-items");
+            
+            if (!resultsDiv || !resultItems) {
+                console.error("Beam results display elements not found");
+                alert("Error: Cannot display results. Page elements missing.");
+                return;
+            }
+            
+            // Safely display results with fallback values
+            resultItems.innerHTML = `
+                <div class="result-item">
+                    <span class="result-label">Self Weight:</span>
+                    <span class="result-value">${(data.self_weight ?? 0).toFixed(3)} kN/m</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Total Dead Load:</span>
+                    <span class="result-value">${(data.total_dead_load ?? 0).toFixed(3)} kN/m</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Factored Load:</span>
+                    <span class="result-value">${(data.factored_load ?? 0).toFixed(3)} kN/m</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Max Moment:</span>
+                    <span class="result-value">${(data.max_moment_factored ?? 0).toFixed(3)} kNm</span>
+                </div>
+                ${data.additional_results ? `
+                <div class="result-item">
+                    <span class="result-label">Additional Results:</span>
+                    <span class="result-value">${data.additional_results}</span>
+                </div>
+                ` : ''}
+            `;
+            
+            resultsDiv.style.display = "block";
+            console.log("Beam results displayed successfully");
+        }
+    });
+})();

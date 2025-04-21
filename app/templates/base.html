@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Civil Engineering Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='styles/main.css') }}">
+</head>
+<body>
+
+    {% include "navbar.html" %}
+    
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        
+    </footer>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

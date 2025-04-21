@@ -8,7 +8,7 @@ const routes = {
 
 // Initial load
 window.onload = () => {
-    navigate('/beam-calculator');
+    navigate('/home');
 };
 
 // Navigation

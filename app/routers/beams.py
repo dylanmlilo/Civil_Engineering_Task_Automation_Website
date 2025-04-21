@@ -1,11 +1,14 @@
 from fastapi import APIRouter, HTTPException
+
 from ..schemas.beam import BeamLoadInput, BeamLoadResult
 from ..calculators.beam_loads_calculator import calculate_loads_on_beam
+import os
 
 router = APIRouter(
     prefix="/api/beams",
     tags=["Beam Calculations"]
 )
+
 
 @router.post("/calculate-loads", response_model=BeamLoadResult)
 async def calculate_beam_loads(input: BeamLoadInput):
