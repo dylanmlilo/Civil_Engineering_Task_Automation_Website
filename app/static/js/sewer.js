@@ -124,7 +124,7 @@
                 <span class="result-label">Velocity (m/s):</span>
                 <span class="result-value">${(data.velocity ?? 0).toFixed(3)}</span>
             </div>
-            <div class="result-item">
+            <div class="result">
                 <span class="result-label">Flow Depth (m):</span>
                 <span class="result-value">${(data.flow_depth ?? 0).toFixed(3)}</span>
                 <span class="result-note ${data.flow_depth/data.diameter > 0.81 ? 'warning' : ''}">
